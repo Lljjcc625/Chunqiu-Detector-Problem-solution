@@ -240,7 +240,7 @@ c. 正确配置 boot hash（正常情况下会自动设置）。
 
 #### 检测方式
 
-KSU 免解（越狱）模式特征，或发现 ksu 相关进程 / 设备。
+KSU 免解（越狱）模式特征，或发现 ksu 相关进程 / 设备（热重启后会出现，可选择重启一次尝试解决）
 
 #### 解决办法
 
@@ -867,9 +867,7 @@ Magic Mount 对系统修改模块挂载生效
 更新hma/hma_oss至最新版
 [HMA更新频道](https://t.me/HideMyApplist/175)
 [HMA_OSS更新频道](https://t.me/buggychat/121613)
-在HMA_oss中可限制其zygote权限“SHARED USER GID”&“APP ZYGOTE GID”尝试解决
-或者可考虑使用hma_uidfake解决此检测项：https://t.me/chunqiudetector/220831
-
+刷入此模块解决[UIDFilter](https://t.me/Suxiaomingpd/402)
 </details>
 
 <details><summary><b>找到了HMA的堆栽处理</b></summary>
