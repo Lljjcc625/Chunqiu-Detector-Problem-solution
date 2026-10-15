@@ -868,6 +868,7 @@ Magic Mount 对系统修改模块挂载生效
 [HMA更新频道](https://t.me/HideMyApplist/175)
 [HMA_OSS更新频道](https://t.me/buggychat/121613)
 刷入此模块解决[UIDFilter](https://t.me/Suxiaomingpd/402)
+如果是隐藏应用列表生效，那请关闭对春秋检测的“伪装安装来源”
 </details>
 
 <details><summary><b>找到了HMA的堆栽处理</b></summary>
