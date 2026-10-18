@@ -6,6 +6,10 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <meta name="description" content="春秋检测器问题解决方案 (Chunqiu Detector Problem Solution)">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <!-- Follow the OS / browser light-dark preference (also styles native form controls & scrollbars) -->
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0d1117">
   <!-- Docsify Theme -->
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
 </head>
@@ -261,6 +265,426 @@
       0% { background-color: rgba(66, 185, 131, 0.25); }
       50% { background-color: rgba(66, 185, 131, 0.15); }
       100% { background-color: transparent; }
+    }
+  </style>
+
+  <!-- ============================================================
+       深色主题 / Dark theme
+       仅通过 prefers-color-scheme 跟随浏览器（= 跟随系统）设置，
+       不写入任何持久化状态，系统切换主题时页面实时响应。
+       浅色主题保持 docsify vue.css 原样，不受影响。
+       ============================================================ -->
+  <style id="theme-dark">
+    @media (prefers-color-scheme: dark) {
+      :root {
+        color-scheme: dark;
+        --dk-bg: #0d1117;
+        --dk-bg-elevated: #161b22;
+        --dk-bg-subtle: #11161d;
+        --dk-bg-hover: #1c232b;
+        --dk-border: #30363d;
+        --dk-border-subtle: #21262d;
+        --dk-text: #c9d1d9;
+        --dk-heading: #e6edf3;
+        --dk-muted: #8b949e;
+        --dk-accent: #4ecb8d;
+        --dk-code-text: #ffb86b;
+      }
+
+      /* ---- base ---- */
+      html,
+      body {
+        background-color: var(--dk-bg);
+        color: var(--dk-text);
+      }
+
+      ::selection {
+        background-color: rgba(78, 203, 141, 0.3);
+      }
+
+      .progress {
+        background-color: var(--dk-accent);
+        box-shadow: 0 0 8px rgba(78, 203, 141, 0.6);
+      }
+
+      /* ---- sidebar ---- */
+      .sidebar {
+        background-color: var(--dk-bg);
+        border-right-color: var(--dk-border-subtle);
+        color: var(--dk-text);
+      }
+
+      .sidebar > h1,
+      .sidebar li > p {
+        color: var(--dk-heading);
+      }
+
+      .sidebar ul li a {
+        color: #a8b3bf;
+      }
+
+      .sidebar ul li a:hover {
+        color: var(--dk-accent);
+      }
+
+      .sidebar ul li.active > a {
+        color: var(--dk-accent);
+        border-right-color: var(--dk-accent);
+      }
+
+      .sidebar-toggle {
+        background-color: rgba(13, 17, 23, 0.85);
+      }
+
+      .sidebar-toggle span {
+        background-color: var(--dk-accent);
+      }
+
+      body.close .sidebar-toggle {
+        background-color: rgba(13, 17, 23, 0.85);
+      }
+
+      .sidebar::-webkit-scrollbar-thumb {
+        background: transparent;
+      }
+
+      .sidebar:hover::-webkit-scrollbar-thumb {
+        background: rgba(201, 209, 217, 0.28);
+      }
+
+      .sidebar:hover::-webkit-scrollbar-track {
+        background: rgba(201, 209, 217, 0.08);
+      }
+
+      /* ---- navbar ---- */
+      .app-nav a {
+        color: var(--dk-text);
+      }
+
+      .app-nav a.active,
+      .app-nav a:hover {
+        color: var(--dk-accent);
+      }
+
+      .app-nav a.active {
+        border-bottom-color: var(--dk-accent);
+      }
+
+      .app-nav li ul {
+        background-color: var(--dk-bg-elevated);
+        border-color: var(--dk-border);
+        box-shadow: 0 8px 24px rgba(1, 4, 9, 0.7);
+      }
+
+      /* ---- content ---- */
+      .anchor span {
+        color: var(--dk-text);
+      }
+
+      .markdown-section {
+        color: var(--dk-text);
+      }
+
+      .markdown-section h1,
+      .markdown-section h2,
+      .markdown-section h3,
+      .markdown-section h4,
+      .markdown-section strong {
+        color: var(--dk-heading);
+      }
+
+      .markdown-section h5 {
+        color: var(--dk-heading);
+      }
+
+      .markdown-section h6 {
+        color: var(--dk-muted);
+      }
+
+      .markdown-section a {
+        color: var(--dk-accent);
+      }
+
+      .markdown-section em {
+        color: #9fb0c0;
+      }
+
+      .markdown-section blockquote {
+        color: var(--dk-muted);
+        border-left-color: var(--dk-accent);
+      }
+
+      .markdown-section hr {
+        border-bottom-color: var(--dk-border-subtle);
+      }
+
+      .markdown-section iframe,
+      .markdown-section output {
+        border-color: var(--dk-border);
+      }
+
+      .markdown-section table th,
+      .markdown-section table td {
+        border-color: var(--dk-border);
+      }
+
+      .markdown-section tr {
+        border-top-color: var(--dk-border);
+      }
+
+      .markdown-section tr:nth-child(2n) {
+        background-color: var(--dk-bg-subtle);
+      }
+
+      .markdown-section code,
+      .markdown-section pre {
+        background-color: var(--dk-bg-elevated);
+      }
+
+      .markdown-section code {
+        color: var(--dk-code-text);
+      }
+
+      .markdown-section pre > code {
+        background-color: var(--dk-bg-elevated);
+        color: var(--dk-text);
+      }
+
+      .markdown-section p.tip {
+        background-color: var(--dk-bg-elevated);
+      }
+
+      .markdown-section p.tip code {
+        background-color: var(--dk-bg-hover);
+      }
+
+      .markdown-section p.tip em {
+        color: var(--dk-text);
+      }
+
+      .markdown-section p.warn {
+        background: rgba(78, 203, 141, 0.12);
+      }
+
+      kbd {
+        background-color: var(--dk-bg-elevated);
+        border-color: var(--dk-border);
+        color: var(--dk-text);
+      }
+
+      /* ---- code highlight (prism) ---- */
+      .token.comment,
+      .token.prolog,
+      .token.doctype,
+      .token.cdata {
+        color: #8b949e;
+      }
+
+      .token.punctuation {
+        color: var(--dk-text);
+      }
+
+      .token.namespace {
+        opacity: 0.7;
+      }
+
+      .token.tag,
+      .token.attr-name,
+      .token.property {
+        color: #7ee787;
+      }
+
+      .token.boolean,
+      .token.number,
+      .token.function,
+      .token.keyword,
+      .token.important {
+        color: #ffa657;
+      }
+
+      .token.string,
+      .token.attr-value,
+      .token.selector,
+      .token.directive,
+      .token.unit,
+      .token.control {
+        color: #a5d6ff;
+      }
+
+      .token.regex,
+      .token.atrule,
+      .token.statement,
+      .token.entity,
+      .token.url,
+      .language-css .token.string,
+      .style .token.string {
+        color: #79c0ff;
+      }
+
+      .token.variable,
+      .token.placeholder {
+        color: #d2a8ff;
+      }
+
+      .token.inserted {
+        border-bottom-color: #3fb950;
+      }
+
+      /* ---- copy-code button ---- */
+      button.docsify-copy-code-button {
+        background-color: var(--dk-bg-hover);
+        color: var(--dk-muted);
+        border-color: var(--dk-border);
+      }
+
+      button.docsify-copy-code-button:hover,
+      button.docsify-copy-code-button:focus {
+        background-color: #263039;
+        color: var(--dk-heading);
+      }
+
+      button.docsify-copy-code-button.success {
+        background-color: var(--dk-accent);
+        color: #0d1117;
+      }
+
+      /* ---- docsify search (sidebar) ---- */
+      .sidebar .search input,
+      .search input[type="search"] {
+        background-color: var(--dk-bg-elevated);
+        border-color: var(--dk-border);
+        color: var(--dk-text);
+      }
+
+      .sidebar .search input::placeholder,
+      .search input[type="search"]::placeholder {
+        color: var(--dk-muted);
+      }
+
+      .sidebar .search input:focus,
+      .search input[type="search"]:focus {
+        border-color: var(--dk-accent);
+      }
+
+      .sidebar .search {
+        border-bottom-color: var(--dk-border-subtle);
+      }
+
+      .sidebar .search .results-panel {
+        background-color: var(--dk-bg);
+        color: var(--dk-text);
+        box-shadow: 0 8px 24px rgba(1, 4, 9, 0.7);
+      }
+
+      .sidebar .search .matching-post {
+        border-bottom-color: var(--dk-border-subtle);
+        color: var(--dk-text);
+      }
+
+      .sidebar .search .matching-post:hover {
+        background-color: var(--dk-bg-hover);
+      }
+
+      .sidebar .search .matching-post h2,
+      .sidebar .search h2 {
+        color: var(--dk-accent);
+      }
+
+      .sidebar .search .matching-post p,
+      .sidebar .search .no-results {
+        color: var(--dk-muted);
+      }
+
+      .search .search-keyword {
+        color: var(--dk-accent);
+      }
+
+      .search a:hover {
+        color: var(--dk-accent);
+      }
+
+      /* ---- navbar search (custom) ---- */
+      .app-nav li.nav-search-item .nav-search-input {
+        background: var(--dk-bg-elevated);
+        border-color: var(--dk-border);
+        color: var(--dk-text);
+      }
+
+      .app-nav li.nav-search-item .nav-search-input::placeholder {
+        color: var(--dk-muted);
+      }
+
+      .app-nav li.nav-search-item .nav-search-input:focus {
+        border-color: var(--dk-accent);
+        box-shadow: 0 0 6px rgba(78, 203, 141, 0.35);
+      }
+
+      .app-nav li.nav-search-item .nav-search-dropdown {
+        background: var(--dk-bg-elevated);
+        border-color: var(--dk-border);
+        box-shadow: 0 10px 30px rgba(1, 4, 9, 0.8), 0 8px 12px -6px rgba(1, 4, 9, 0.6);
+        color: var(--dk-text);
+      }
+
+      .app-nav li.nav-search-item .nav-search-dropdown .matching-post {
+        border-bottom-color: var(--dk-border-subtle);
+        color: var(--dk-text);
+      }
+
+      .app-nav li.nav-search-item .nav-search-dropdown .matching-post:hover {
+        background-color: var(--dk-bg-hover);
+      }
+
+      .app-nav li.nav-search-item .nav-search-dropdown h2 {
+        color: var(--dk-accent);
+      }
+
+      .app-nav li.nav-search-item .nav-search-dropdown p {
+        color: var(--dk-muted);
+      }
+
+      .app-nav li.nav-search-item .nav-search-dropdown .search-keyword {
+        color: var(--dk-accent);
+      }
+
+      .app-nav li.nav-search-item .nav-search-dropdown .no-results {
+        color: var(--dk-muted);
+      }
+
+      /* ---- <details> blocks (custom) ---- */
+      details {
+        background-color: var(--dk-bg-subtle);
+        border-color: var(--dk-border);
+      }
+
+      details[open] {
+        background-color: var(--dk-bg-elevated);
+        border-color: var(--dk-accent);
+        box-shadow: 0 2px 12px rgba(1, 4, 9, 0.6);
+      }
+
+      details summary {
+        color: var(--dk-heading);
+      }
+
+      details summary:hover {
+        color: var(--dk-accent);
+      }
+
+      details[open] summary {
+        border-bottom-color: var(--dk-border);
+      }
+
+      details.search-highlight {
+        border-left-color: var(--dk-accent);
+      }
+
+      /* 深色下描边高亮更克制，避免整块泛绿 */
+      @keyframes highlight-pulse {
+        0% { background-color: rgba(78, 203, 141, 0.18); }
+        50% { background-color: rgba(78, 203, 141, 0.1); }
+        100% { background-color: transparent; }
+      }
     }
   </style>
 
