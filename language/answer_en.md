@@ -45,6 +45,7 @@ Open an issue with your module list and which Xposed modules you're using, etc. 
 ---
 
 </details>
+
 ## Table of Contents
 
 - [Help & Feedback](#help--feedback)
@@ -99,6 +100,7 @@ a module that provides the Zygisk runtime — it injects code into Zygote / app 
 a module that operates on “package visibility” — it intercepts the package-query path inside a target process (or a system process) and hides selected apps from the configured target app.
 
 </details>
+
 ## Prologue
 
 <details><summary><b>Minimal Module Set for a Perfectly Hidden Environment</b></summary>
@@ -163,6 +165,7 @@ Usage varies; the following are terminology only (HMA-OSS as an example):
 ---
 
 </details>
+
 ## Detection Items
 
 ## Root Permissions & SELinux Detection
@@ -431,6 +434,7 @@ KSU · LKM — flash a matching PathMask and enable “isolation guard (procguar
 ---
 
 </details>
+
 ## TEE & Key Attestation Detection
 
 <details><summary><b>TEE Environment Untrusted</b></summary>
@@ -663,6 +667,7 @@ Replace `keybox.xml` in `/data/adb/tricky_store/`.
 ---
 
 </details>
+
 ## Mounts & Namespaces Detection
 
 <details><summary><b>Mount Detector(7)</b></summary>
@@ -840,6 +845,7 @@ check what your hiding framework / metamodule changes about namespaces, update i
 ---
 
 </details>
+
 ## Environment, Processes & Files Detection
 
 <details><summary><b>Miscellaneous Check(12)</b></summary>
@@ -1268,6 +1274,7 @@ Relation: both this and `fdinfo mnt Sampling Anomaly (c)` involve USB debugging,
 ---
 
 </details>
+
 ## Kernel, Properties & System Characteristics Detection
 
 <details><summary><b>LineageOS detection</b></summary>
@@ -1530,6 +1537,7 @@ Note (to be confirmed by the author): pulls against `Miscellaneous Check (3)`; s
 ---
 
 </details>
+
 ## Appendices
 
 <details><summary><b>Appendix A: risky / blacklisted packages (85)</b></summary>

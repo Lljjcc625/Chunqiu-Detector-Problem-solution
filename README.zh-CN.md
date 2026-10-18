@@ -8,17 +8,20 @@
 
 👉 **[https://mingzun09.github.io/Chunqiu-Detector-Problem-solution/](https://mingzun09.github.io/Chunqiu-Detector-Problem-solution/)**
 
-站点使用 **VitePress** 构建：侧边栏按分类折叠并列出全部检测项、支持中文分词搜索、深色/浅色主题。
-文档内容仍维护在本仓库的 `language/answer_zh.md` 与 `language/answer_en.md`（**无需改站点文件**，提交后自动构建）。
+站点使用 **Docsify** 构建（纯前端单页，无构建步骤）：入口为根目录的 `index.html`，侧边栏与导航分别来自 `_sidebar.md` / `_navbar.md`，正文直接读取 `language/answer_zh.md` 与 `language/answer_en.md`（**无需改站点文件**，提交后自动更新）。
+
+- 深浅色主题跟随浏览器 / 系统设置（`prefers-color-scheme`），无需手动切换
+- 顶部搜索框只检索**词条标题**，命中后展开对应条目
+- 文档内容仍维护在 `language/answer_zh.md` 与 `language/answer_en.md`
+
+本地预览（Docsify 通过 XHR 读取 Markdown，必须走 HTTP，不能直接双击打开 `index.html`）：
 
 ```bash
-npm install          # 安装依赖（Node 20+）
-npm run docs:dev     # 本地预览 http://localhost:5173/Chunqiu-Detector-Problem-solution/
-npm run docs:build   # 构建到 docs/.vitepress/dist
+python -m http.server 8000    # 或任意静态服务器，如 npx serve
+# 打开 http://localhost:8000/
 ```
 
-> 站点源码在 `docs/`（配置 `docs/.vitepress/config.mts`），构建前由 `scripts/prepare.mjs` 自动：
-> 拷贝 `File/` 附件、把两份 markdown 转成页面并注入条目锚点、生成侧边栏数据。
+> 发布流程：`.github/workflows/pages.yml` 在 push 到 `main` 后把仓库根目录发布到 GitHub Pages。
 
 ---
 

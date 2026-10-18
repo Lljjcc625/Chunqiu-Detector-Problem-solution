@@ -27,29 +27,11 @@
       alias: {
         '/.*/_navbar.md': '/_navbar.md',
         '/.*/_sidebar.md': '/_sidebar.md'
-      },
-      search: {
-        maxAge: 86400000,
-        paths: [
-          '/language/answer_zh.md',
-          '/language/answer_en.md'
-        ],
-        placeholder: {
-          '/': '搜索检测项或解决方案...',
-          '/language/': 'Search detection items or solutions...'
-        },
-        noData: {
-          '/': '未找到相关结果',
-          '/language/': 'No results found'
-        },
-        depth: 4
       }
     }
   </script>
   <!-- Docsify Core -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
-  <!-- Search Plugin -->
-  <script src="//cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
   <!-- Copy code plugin -->
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code/dist/docsify-copy-code.min.js"></script>
 
@@ -150,6 +132,103 @@
       text-align: center;
     }
 
+    /* Sidebar entry search (light) */
+    .sidebar .search {
+      margin: 0 15px 18px;
+      text-align: left;
+    }
+
+    .sidebar .search input[type="search"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: #333;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .sidebar .search input[type="search"]::placeholder {
+      color: #94a3b8;
+    }
+
+    .sidebar .search input[type="search"]:focus {
+      border-color: #42b983;
+      box-shadow: 0 0 0 3px rgba(66, 185, 131, 0.15);
+    }
+
+    .sidebar .search .results-panel {
+      display: none;
+      margin-top: 8px;
+      max-height: 48vh;
+      overflow-y: auto;
+      padding: 6px 0;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px -8px rgba(15, 23, 42, 0.25);
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .sidebar .search .results-panel.show {
+      display: block;
+    }
+
+    .sidebar .search .matching-post {
+      display: block;
+      padding: 8px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      color: inherit;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+    }
+
+    .sidebar .search .matching-post:last-child {
+      border-bottom: none;
+    }
+
+    .sidebar .search .matching-post:hover {
+      background-color: #f8fafc;
+    }
+
+    .sidebar .search .matching-post h2 {
+      margin: 0 0 3px;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: #42b983;
+      white-space: normal;
+    }
+
+    .sidebar .search .matching-post p {
+      margin: 0;
+      font-size: 11px;
+      line-height: 1.3;
+      color: #64748b;
+    }
+
+    .sidebar .search .search-keyword {
+      color: #42b983;
+      font-weight: 700;
+    }
+
+    .sidebar .search .no-results {
+      padding: 10px 12px;
+      color: #94a3b8;
+      text-align: center;
+    }
+
+    /* Scroll offset so a searched entry/heading is not glued to the viewport edge */
+    details,
+    .markdown-section h2,
+    .markdown-section h3 {
+      scroll-margin-top: 28px;
+    }
+
     @media screen and (max-width: 768px) {
       body .content {
         padding-top: 100px !important;
@@ -202,6 +281,12 @@
         width: 90%;
         max-width: 320px;
         margin: 0 auto;
+      }
+
+      details,
+      .markdown-section h2,
+      .markdown-section h3 {
+        scroll-margin-top: 96px;
       }
     }
 
@@ -548,30 +633,25 @@
         color: #0d1117;
       }
 
-      /* ---- docsify search (sidebar) ---- */
-      .sidebar .search input,
-      .search input[type="search"] {
+      /* ---- entry search (sidebar) ---- */
+      .sidebar .search input[type="search"] {
         background-color: var(--dk-bg-elevated);
         border-color: var(--dk-border);
         color: var(--dk-text);
       }
 
-      .sidebar .search input::placeholder,
-      .search input[type="search"]::placeholder {
+      .sidebar .search input[type="search"]::placeholder {
         color: var(--dk-muted);
       }
 
-      .sidebar .search input:focus,
-      .search input[type="search"]:focus {
+      .sidebar .search input[type="search"]:focus {
         border-color: var(--dk-accent);
-      }
-
-      .sidebar .search {
-        border-bottom-color: var(--dk-border-subtle);
+        box-shadow: 0 0 0 3px rgba(78, 203, 141, 0.18);
       }
 
       .sidebar .search .results-panel {
-        background-color: var(--dk-bg);
+        background-color: var(--dk-bg-elevated);
+        border-color: var(--dk-border);
         color: var(--dk-text);
         box-shadow: 0 8px 24px rgba(1, 4, 9, 0.7);
       }
@@ -595,7 +675,8 @@
         color: var(--dk-muted);
       }
 
-      .search .search-keyword {
+      .search .search-keyword,
+      .sidebar .search .search-keyword {
         color: var(--dk-accent);
       }
 
@@ -690,219 +771,412 @@
 
   <script>
     (function () {
-      let lastSearchQuery = '';
+      'use strict';
 
-      function getSearchQuery() {
-        const navInput = document.querySelector('.nav-search-input');
-        const sidebarInput = document.querySelector('.sidebar .search input[type="search"]');
-        return (navInput && navInput.value.trim()) || (sidebarInput && sidebarInput.value.trim()) || lastSearchQuery;
+      /* 仅索引「词条标题」：Markdown 的 ##/### 标题 与 <summary> 文本。
+         条目解释正文（<details> 内部内容）不进入索引，也不参与匹配。 */
+      var DOCS = {
+        zh: { path: 'language/answer_zh.md', placeholder: '搜索词条...', empty: '未找到相关词条', entry: '检测项' },
+        en: { path: 'language/answer_en.md', placeholder: 'Search entries...', empty: 'No matching entry', entry: 'Detected item' }
+      };
+      var SECTION_LABEL = { zh: '分类', en: 'Section' };
+      var MAX_RESULTS = 40;
+
+      var cache = {};
+      var pending = {};
+      var lastQuery = '';
+      var renderSeq = 0;
+      var navInput = null;
+      var navPanel = null;
+      var sideInput = null;
+      var sidePanel = null;
+
+      function lang() {
+        return /answer_en/.test(window.location.hash) ? 'en' : 'zh';
       }
 
-      function updateNavbarSearchPlaceholder() {
-        const navInput = document.querySelector('.nav-search-input');
-        if (!navInput) return;
-        const isEnglish = window.location.hash.includes('answer_en');
-        navInput.placeholder = isEnglish ? 'Search...' : '搜索...';
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function (c) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+        });
       }
 
-      function syncSearchResultsToDropdown() {
-        const dropdown = document.querySelector('.nav-search-dropdown');
-        const sidebarResults = document.querySelector('.sidebar .search .results-panel');
-        if (!dropdown) return;
-
-        if (sidebarResults) {
-          dropdown.innerHTML = sidebarResults.innerHTML;
-        } else {
-          dropdown.innerHTML = '';
-        }
+      function plain(s) {
+        return String(s)
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+          .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+          .replace(/&nbsp;/g, ' ')
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/\s+/g, ' ')
+          .trim();
       }
 
-      function showDropdownIfNotEmpty() {
-        const dropdown = document.querySelector('.nav-search-dropdown');
-        const query = getSearchQuery();
-        if (dropdown) {
-          if (query.length > 0) {
-            dropdown.classList.add('show');
-          } else {
-            dropdown.classList.remove('show');
+      function parseIndex(md) {
+        var items = [];
+        var section = '';
+        var entryIndex = 0;
+        var headIndex = 0;
+        var inFence = false;
+        var lines = md.split(/\r?\n/);
+
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim();
+
+          if (/^(```|~~~)/.test(line)) { inFence = !inFence; continue; }
+          if (inFence || !line) continue;
+
+          var h = line.match(/^(#{1,6})\s+(.+?)\s*#*$/);
+          if (h) {
+            var level = h[1].length;
+            var heading = plain(h[2]);
+            section = heading;
+            if ((level === 2 || level === 3) && heading) {
+              items.push({ kind: 'heading', title: heading, section: heading, index: headIndex++ });
+            }
+            continue;
+          }
+
+          var re = /<summary\b[^>]*>([\s\S]*?)<\/summary>/gi;
+          var m;
+          while ((m = re.exec(line)) !== null) {
+            var title = plain(m[1]);
+            if (title) items.push({ kind: 'entry', title: title, section: section, index: entryIndex++ });
           }
         }
+        return items;
       }
 
-      function injectNavbarSearch() {
-        const navUl = document.querySelector('.app-nav ul');
+      function loadIndex(l) {
+        if (cache[l]) return Promise.resolve(cache[l]);
+        if (pending[l]) return pending[l];
+        pending[l] = fetch(DOCS[l].path, { cache: 'no-cache' })
+          .then(function (res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.text();
+          })
+          .then(function (md) {
+            cache[l] = parseIndex(md);
+            return cache[l];
+          })
+          .catch(function (err) {
+            console.warn('[entry-search] 索引加载失败 / index failed:', err);
+            cache[l] = [];
+            return cache[l];
+          });
+        return pending[l];
+      }
+
+      /* 只比对标题：多关键词用空格分隔，全部命中才算匹配 */
+      function search(items, query) {
+        var q = plain(query).toLowerCase();
+        if (!q) return [];
+        var tokens = q.split(/\s+/).filter(Boolean);
+        var hits = [];
+
+        for (var i = 0; i < items.length; i++) {
+          var item = items[i];
+          var title = item.title.toLowerCase();
+          var matched = true;
+          for (var j = 0; j < tokens.length; j++) {
+            if (title.indexOf(tokens[j]) === -1) { matched = false; break; }
+          }
+          if (!matched) continue;
+          var score = title === q ? 0 : (title.indexOf(q) === 0 ? 1 : (title.indexOf(q) > 0 ? 2 : 3));
+          hits.push({ item: item, score: score });
+        }
+
+        hits.sort(function (a, b) {
+          if (a.score !== b.score) return a.score - b.score;
+          if (a.item.kind !== b.item.kind) return a.item.kind === 'entry' ? -1 : 1;
+          if (a.item.title.length !== b.item.title.length) return a.item.title.length - b.item.title.length;
+          return a.item.title.localeCompare(b.item.title);
+        });
+
+        return hits.slice(0, MAX_RESULTS).map(function (hit) { return hit.item; });
+      }
+
+      function highlight(title, query) {
+        var tokens = plain(query).toLowerCase().split(/\s+/).filter(Boolean);
+        var lower = title.toLowerCase();
+        var ranges = [];
+
+        tokens.forEach(function (token) {
+          var from = 0;
+          while (from <= lower.length) {
+            var at = lower.indexOf(token, from);
+            if (at === -1) break;
+            ranges.push([at, at + token.length]);
+            from = at + token.length;
+          }
+        });
+        if (!ranges.length) return escapeHtml(title);
+
+        ranges.sort(function (a, b) { return a[0] - b[0] || b[1] - a[1]; });
+        var merged = [];
+        ranges.forEach(function (range) {
+          var prev = merged[merged.length - 1];
+          if (prev && range[0] <= prev[1]) prev[1] = Math.max(prev[1], range[1]);
+          else merged.push([range[0], range[1]]);
+        });
+
+        var html = '';
+        var pos = 0;
+        merged.forEach(function (range) {
+          html += escapeHtml(title.slice(pos, range[0]));
+          html += '<span class="search-keyword">' + escapeHtml(title.slice(range[0], range[1])) + '</span>';
+          pos = range[1];
+        });
+        html += escapeHtml(title.slice(pos));
+        return html;
+      }
+
+      function renderResults(results, query, l) {
+        if (!results.length) {
+          return '<div class="no-results">' + escapeHtml(DOCS[l].empty) + '</div>';
+        }
+        return results.map(function (item) {
+          var attr = item.kind === 'entry'
+            ? 'data-entry="' + item.index + '"'
+            : 'data-head="' + item.index + '"';
+          var label = item.kind === 'entry'
+            ? (item.section || DOCS[l].entry)
+            : SECTION_LABEL[l];
+          return '<a class="matching-post" href="javascript:void(0)" ' + attr +
+            ' data-title="' + escapeHtml(item.title) + '">' +
+            '<h2>' + highlight(item.title, query) + '</h2>' +
+            '<p>' + escapeHtml(label) + '</p>' +
+            '</a>';
+        }).join('');
+      }
+
+      function hidePanels() {
+        var nav = document.querySelector('.nav-search-dropdown');
+        var side = document.querySelector('.sidebar .results-panel');
+        if (nav) nav.classList.remove('show');
+        if (side) side.classList.remove('show');
+      }
+
+      function apply(query) {
+        lastQuery = query;
+        var l = lang();
+        var seq = ++renderSeq;
+
+        if (!query.trim()) {
+          hidePanels();
+          return;
+        }
+
+        loadIndex(l).then(function (items) {
+          if (seq !== renderSeq) return;
+          var results = search(items, query);
+          var html = renderResults(results, query, l);
+
+          var nav = document.querySelector('.nav-search-dropdown');
+          var side = document.querySelector('.sidebar .results-panel');
+          if (nav) { nav.innerHTML = html; nav.classList.add('show'); }
+          if (side) { side.innerHTML = html; side.classList.add('show'); }
+        });
+      }
+
+      function summaryText(details) {
+        var summary = details.querySelector('summary');
+        return summary ? plain(summary.textContent) : '';
+      }
+
+      function reveal(el) {
+        if (el.tagName === 'DETAILS') el.open = true;
+        /* block:'start' + scroll-margin-top 让展开后的条目标题停在视口顶部附近 */
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.remove('search-highlight');
+        void el.offsetWidth;
+        el.classList.add('search-highlight');
+        window.setTimeout(function () { el.classList.remove('search-highlight'); }, 2400);
+      }
+
+      function findEntry(index, title) {
+        var list = Array.prototype.slice.call(document.querySelectorAll('.markdown-section details'));
+        var byIndex = list[index];
+        if (byIndex && summaryText(byIndex) === title) return byIndex;
+        for (var i = 0; i < list.length; i++) {
+          if (summaryText(list[i]) === title) return list[i];
+        }
+        return null;
+      }
+
+      function openEntry(index, title, attempt) {
+        attempt = attempt || 0;
+        var target = findEntry(index, title);
+        if (target) { reveal(target); return; }
+
+        if (attempt === 0) {
+          /* 不在当前文档（例如停留在致谢页）：先跳到词条所属文档 */
+          window.location.hash = '#/' + DOCS[lang()].path;
+          window.setTimeout(function () { openEntry(index, title, 1); }, 700);
+          return;
+        }
+        if (attempt < 8) {
+          window.setTimeout(function () { openEntry(index, title, attempt + 1); }, 450);
+        }
+      }
+
+      function openHeading(index, title) {
+        var heads = Array.prototype.slice.call(document.querySelectorAll('.markdown-section h2, .markdown-section h3'));
+        var target = heads[index];
+        if (!target || plain(target.textContent) !== title) {
+          target = null;
+          var all = Array.prototype.slice.call(document.querySelectorAll('.markdown-section h1, .markdown-section h2, .markdown-section h3'));
+          for (var i = 0; i < all.length; i++) {
+            if (plain(all[i].textContent) === title) { target = all[i]; break; }
+          }
+        }
+        if (target) reveal(target);
+      }
+
+      function bindInput(input) {
+        input.addEventListener('input', function () {
+          var value = input.value;
+          if (navInput && navInput !== input) navInput.value = value;
+          if (sideInput && sideInput !== input) sideInput.value = value;
+          apply(value);
+        });
+
+        input.addEventListener('focus', function () {
+          if (input.value.trim()) apply(input.value);
+        });
+
+        input.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            var panel = (input === sideInput)
+              ? document.querySelector('.sidebar .results-panel')
+              : document.querySelector('.nav-search-dropdown');
+            var first = panel && panel.querySelector('.matching-post');
+            if (first) first.click();
+          } else if (e.key === 'Escape') {
+            hidePanels();
+            input.blur();
+          }
+        });
+      }
+
+      function ensureNavSearch() {
+        var navUl = document.querySelector('.app-nav ul');
         if (!navUl) return;
 
-        let li = navUl.querySelector('.nav-search-item');
+        var li = navUl.querySelector('.nav-search-item');
         if (!li) {
           li = document.createElement('li');
           li.className = 'nav-search-item';
 
-          const input = document.createElement('input');
-          input.type = 'search';
-          input.className = 'nav-search-input';
-          input.ariaLabel = 'Search text';
+          navInput = document.createElement('input');
+          navInput.type = 'search';
+          navInput.className = 'nav-search-input';
+          navInput.setAttribute('aria-label', 'Search entries');
 
-          const dropdown = document.createElement('div');
-          dropdown.className = 'nav-search-dropdown';
+          navPanel = document.createElement('div');
+          navPanel.className = 'nav-search-dropdown';
 
-          li.appendChild(input);
-          li.appendChild(dropdown);
-
-          // Sync input events to sidebar search
-          input.addEventListener('input', function (e) {
-            const val = e.target.value;
-            lastSearchQuery = val.trim();
-            const sidebarInput = document.querySelector('.sidebar .search input[type="search"]');
-            if (sidebarInput) {
-              sidebarInput.value = val;
-              sidebarInput.dispatchEvent(new Event('input', { bubbles: true }));
-            }
-            syncSearchResultsToDropdown();
-            showDropdownIfNotEmpty();
-          });
-
-          input.addEventListener('focus', function () {
-            syncSearchResultsToDropdown();
-            showDropdownIfNotEmpty();
-          });
+          li.appendChild(navInput);
+          li.appendChild(navPanel);
+          bindInput(navInput);
+        } else {
+          navInput = li.querySelector('.nav-search-input');
+          navPanel = li.querySelector('.nav-search-dropdown');
         }
 
-        if (navUl.firstChild !== li) {
-          navUl.insertBefore(li, navUl.firstChild);
-        }
-
-        updateNavbarSearchPlaceholder();
+        if (navUl.firstChild !== li) navUl.insertBefore(li, navUl.firstChild);
+        if (navInput) navInput.placeholder = DOCS[lang()].placeholder;
       }
 
-      // Observe mutation in sidebar search results to sync live updates to floating dropdown
-      const searchObserver = new MutationObserver(function () {
-        syncSearchResultsToDropdown();
-        showDropdownIfNotEmpty();
-      });
+      function ensureSidebarSearch() {
+        var sidebar = document.querySelector('.sidebar');
+        if (!sidebar) return;
 
-      function setupSearchObserver() {
-        const sidebarSearch = document.querySelector('.sidebar .search');
-        if (sidebarSearch) {
-          searchObserver.observe(sidebarSearch, { childList: true, subtree: true });
+        var wrap = sidebar.querySelector('.search');
+        if (!wrap) {
+          wrap = document.createElement('div');
+          wrap.className = 'search';
+
+          sideInput = document.createElement('input');
+          sideInput.type = 'search';
+          sideInput.className = 'search-input';
+          sideInput.setAttribute('aria-label', 'Search entries');
+
+          sidePanel = document.createElement('div');
+          sidePanel.className = 'results-panel';
+
+          wrap.appendChild(sideInput);
+          wrap.appendChild(sidePanel);
+
+          var sidebarNav = sidebar.querySelector('.sidebar-nav');
+          if (sidebarNav) sidebar.insertBefore(wrap, sidebarNav);
+          else sidebar.appendChild(wrap);
+
+          bindInput(sideInput);
+        } else {
+          sideInput = wrap.querySelector('input');
+          sidePanel = wrap.querySelector('.results-panel');
         }
+
+        if (sideInput) sideInput.placeholder = DOCS[lang()].placeholder;
       }
 
-      // Close dropdown when clicking outside or pressing Escape
+      /* 点击结果：只展开被点击的那一个词条 */
       document.addEventListener('click', function (e) {
-        const navSearchItem = document.querySelector('.nav-search-item');
-        const dropdown = document.querySelector('.nav-search-dropdown');
-        if (dropdown && navSearchItem && !navSearchItem.contains(e.target)) {
-          dropdown.classList.remove('show');
+        var hit = e.target.closest('.matching-post[data-entry], .matching-post[data-head]');
+        if (hit) {
+          e.preventDefault();
+          var title = hit.getAttribute('data-title') || '';
+          hidePanels();
+          if (hit.hasAttribute('data-entry')) {
+            openEntry(parseInt(hit.getAttribute('data-entry'), 10), title);
+          } else {
+            openHeading(parseInt(hit.getAttribute('data-head'), 10), title);
+          }
+          return;
         }
-      });
+
+        var navWrap = document.querySelector('.nav-search-item');
+        if (navWrap && !navWrap.contains(e.target)) {
+          var nav = document.querySelector('.nav-search-dropdown');
+          if (nav) nav.classList.remove('show');
+        }
+        var sideWrap = document.querySelector('.sidebar .search');
+        if (sideWrap && !sideWrap.contains(e.target)) {
+          var side = document.querySelector('.sidebar .results-panel');
+          if (side) side.classList.remove('show');
+        }
+      }, true);
 
       document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-          const dropdown = document.querySelector('.nav-search-dropdown');
-          if (dropdown) dropdown.classList.remove('show');
-        }
+        if (e.key === 'Escape') hidePanels();
       });
 
-      // Sync sidebar search back to navbar search
-      document.addEventListener('input', function (e) {
-        if (e.target && e.target.matches('.sidebar .search input[type="search"]')) {
-          const navInput = document.querySelector('.nav-search-input');
-          if (navInput && navInput.value !== e.target.value) {
-            navInput.value = e.target.value;
-          }
-          lastSearchQuery = e.target.value.trim();
-        }
-      });
-
-      function expandAndScrollToMatch(targetHeadingId, query) {
-        if (!query) return;
-
-        setTimeout(function () {
-          const queryLower = query.toLowerCase();
-          const allDetails = Array.from(document.querySelectorAll('article#main details'));
-          let matchedDetails = [];
-
-          // If a section heading target exists, prefer details in that section
-          if (targetHeadingId) {
-            const headingEl = document.getElementById(targetHeadingId);
-            if (headingEl) {
-              // Find details following this heading until next H1/H2
-              let curr = headingEl.nextElementSibling;
-              while (curr && !['H1', 'H2'].includes(curr.tagName)) {
-                if (curr.tagName === 'DETAILS') {
-                  const text = curr.textContent || curr.innerText || '';
-                  if (text.toLowerCase().includes(queryLower)) {
-                    matchedDetails.push(curr);
-                  }
-                }
-                curr = curr.nextElementSibling;
-              }
-            }
-          }
-
-          // Fallback: search across all details if no heading match found
-          if (matchedDetails.length === 0) {
-            matchedDetails = allDetails.filter(d => {
-              const text = d.textContent || d.innerText || '';
-              return text.toLowerCase().includes(queryLower);
-            });
-          }
-
-          if (matchedDetails.length > 0) {
-            // Expand all matched details
-            matchedDetails.forEach(d => {
-              d.open = true;
-            });
-
-            // Scroll to the first match
-            const firstMatch = matchedDetails[0];
-            firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-            // Highlight temporarily
-            firstMatch.classList.remove('search-highlight');
-            void firstMatch.offsetWidth; // trigger reflow
-            firstMatch.classList.add('search-highlight');
-          }
-        }, 150);
-      }
-
-      // Intercept clicks on search result items
-      document.addEventListener('click', function (e) {
-        const link = e.target.closest('.matching-post a');
-        if (link) {
-          const href = link.getAttribute('href') || '';
-          const hashIdx = href.indexOf('#');
-          const hashStr = hashIdx !== -1 ? href.substring(hashIdx) : href;
-
-          let headingId = '';
-          const queryMatch = hashStr.match(/\?id=([^&]+)/) || hashStr.match(/#.*[\?&]id=([^&]+)/);
-          if (queryMatch) {
-            headingId = decodeURIComponent(queryMatch[1]);
-          }
-
-          const query = getSearchQuery();
-          expandAndScrollToMatch(headingId, query);
-
-          // Dismiss floating search dropdown after clicking a result
-          const dropdown = document.querySelector('.nav-search-dropdown');
-          if (dropdown) {
-            dropdown.classList.remove('show');
-          }
-        }
-      });
-
-      // Docsify plugin hook for setup & route updates
+      /* 路由切换：清空查询，重新挂载搜索框 */
       window.$docsify = window.$docsify || {};
       window.$docsify.plugins = (window.$docsify.plugins || []).concat(function (hook) {
         hook.doneEach(function () {
-          injectNavbarSearch();
-          setupSearchObserver();
+          lastQuery = '';
+          renderSeq++;
+          if (navInput) navInput.value = '';
+          if (sideInput) sideInput.value = '';
+          hidePanels();
+          ensureNavSearch();
+          ensureSidebarSearch();
+          loadIndex(lang());
         });
       });
 
-      // Periodic check to ensure navbar search item persists across navbar rerenders
-      setInterval(injectNavbarSearch, 300);
+      /* 导航栏会随路由重建，定期确保搜索框存在 */
+      window.setInterval(function () {
+        ensureNavSearch();
+        ensureSidebarSearch();
+      }, 400);
     })();
   </script>
 </body>
