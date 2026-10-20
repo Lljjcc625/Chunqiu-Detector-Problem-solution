@@ -1312,14 +1312,36 @@ Widevine（`MediaDrm`）报告 `securityLevel = L1`、`openSession()` 抛 `NotPr
 
 <details><summary><b>avb校验异常 avb=2.0</b></summary>
 
-#### 检测方式
-
+#### 检测方式  
 读取 `ro.boot.vbmeta.avb_version` 等 vbmeta 属性并与预期比对。
 
-avb 版本异常。
+#### 异常原因  
+某些模块会强制修改 vbmeta 属性造成此问题，包括但不限于：
+1. **改机型模块**
+2. **Play Integrity 修复/过检类模块**（如 Integrity Box、各类 PIF 衍生版/整合包，此类模块为了模拟回锁常在安装或开机脚本中硬编码写入 `avb_version=2.0`）
 
-某些模块会造成此问题，比如改机型模块，自行排查模块尝试解决。
-若已卸载改机模块仍报，可尝试：`su -c resetprop -n ro.boot.avb_version 1.3`。
+#### 排查与解决办法  
+1. **定位并排查问题模块**：
+   - 打开 MT 管理器，进入 `/data/adb/modules/` 目录。
+   - 搜索文件内容：`avb_version`。
+   - 排查命中的模块文件（如 `system.prop`、`post-fs-data.sh`、`customize.sh` 等），找到是哪个模块在注入该属性，修改对应值、注释相关设置，或直接卸载/禁用该问题模块。
+2. **排查并修复开机常驻服务脚本（常见于 Integrity Box 等模块）**：
+   - 检查 `/data/adb/service.d/` 目录下是否存在 `hash.sh`（或其他自启脚本）。
+   - 打开并查找是否包含：
+     ```sh
+     "$RESETPROP" ro.boot.vbmeta.avb_version "2.0"
+     ```
+   - 将其修改为：
+     ```sh
+     "$RESETPROP" ro.boot.vbmeta.avb_version "1.3"
+     ```
+   - 保存后重启设备生效。后续该行也可以直接注释或删除。
+3. **命令行临时修改（单次开机即时生效）**：
+   - 若环境支持 `resetprop`（Magisk 环境或已配置对应 PATH 的终端），可尝试在终端直接执行：
+     ```sh
+     su -c resetprop -n ro.boot.avb_version 1.3
+     ```
+   - *注意：`resetprop` 直接修改的是内存属性，手机重启后便会失效；且 KernelSU 环境下的终端通常未将 resetprop 加入全局 PATH（会报错 `resetprop: command not found`）。持久解决请务必采用方法 1 和 2 修改对应开机脚本。*
 
 </details>
 
