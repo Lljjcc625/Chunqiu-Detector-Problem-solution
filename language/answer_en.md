@@ -1340,15 +1340,36 @@ Note: `the repo's property-hiding script` writes properties early with `resetpro
 
 <details><summary><b>avb verification abnormal avb=2.0</b></summary>
 
-#### Detection method
+#### Detection Method  
+Reads vbmeta properties such as `ro.boot.vbmeta.avb_version` and compares them with expected values.
 
-Reads vbmeta properties such as `ro.boot.vbmeta.avb_version` and compares them with expectations.
+#### Root Cause  
+Certain modules force-modify vbmeta properties, leading to this issue, including but not limited to:
+1. **Device spoofing modules**
+2. **Play Integrity Fix / Spoofing modules** (e.g., Integrity Box, various PIF forks/repacks; these often hardcode `avb_version=2.0` in installation or boot scripts to emulate a locked bootloader state)
 
-Abnormal avb version.
-
-Certain modules can cause this, such as device model changers. Troubleshoot yourself.
-
-If it still hits after removing the model-spoofing module: `su -c resetprop -n ro.boot.avb_version 1.3`.
+#### Troubleshooting & Solutions  
+1. **Locate and inspect the culprit module**:
+   - Open a root file manager (e.g., MT Manager) and navigate to `/data/adb/modules/`.
+   - Search file contents for: `avb_version`.
+   - Inspect matched files (such as `system.prop`, `post-fs-data.sh`, `customize.sh`, etc.) to identify the responsible module, then update the value, comment out the setting, or disable/uninstall the module.
+2. **Inspect and fix persistent startup scripts (commonly found in Integrity Box and similar modules)**:
+   - Check if `hash.sh` (or other startup scripts) exists under `/data/adb/service.d/`.
+   - Open the file and locate the following line:
+     ```sh
+     "$RESETPROP" ro.boot.vbmeta.avb_version "2.0"
+     ```
+   - Change it to:
+     ```sh
+     "$RESETPROP" ro.boot.vbmeta.avb_version "1.3"
+     ```
+   - Save the file and reboot the device for changes to take effect. This line can also be safely commented out or deleted afterwards.
+3. **Temporary terminal command (effective for current boot session only)**:
+   - If your environment supports `resetprop` (Magisk environments or terminals with resetprop exported to PATH), you can run:
+     ```sh
+     su -c resetprop -n ro.boot.avb_version 1.3
+     ```
+   - *Note: `resetprop` modifies in-memory properties directly and reverts upon reboot. Additionally, in KernelSU environments, `resetprop` is usually not in the global PATH and will return `resetprop: command not found`. For a persistent fix, always use methods 1 and 2.*
 
 </details>
 
