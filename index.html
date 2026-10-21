@@ -827,9 +827,12 @@
          条目解释正文（<details> 内部内容）不进入索引，也不参与匹配。 */
       var DOCS = {
         zh: { path: 'language/answer_zh.md', placeholder: '搜索词条...', empty: '未找到相关词条', entry: '检测项' },
-        en: { path: 'language/answer_en.md', placeholder: 'Search entries...', empty: 'No matching entry', entry: 'Detected item' }
+        en: { path: 'language/answer_en.md', placeholder: 'Search entries...', empty: 'No matching entry', entry: 'Detected item' },
+        ru: { path: 'language/answer_ru.md', placeholder: 'Поиск пунктов...', empty: 'Ничего не найдено', entry: 'Пункт обнаружения' },
+        es: { path: 'language/answer_es.md', placeholder: 'Buscar elementos...', empty: 'Sin resultados', entry: 'Elemento de detección' },
+        ja: { path: 'language/answer_ja.md', placeholder: '項目を検索...', empty: '該当する項目がありません', entry: '検出項目' }
       };
-      var SECTION_LABEL = { zh: '分类', en: 'Section' };
+      var SECTION_LABEL = { zh: '分类', en: 'Section', ru: 'Раздел', es: 'Sección', ja: '分類' };
       var MAX_RESULTS = 40;
 
       var cache = {};
@@ -842,7 +845,8 @@
       var sidePanel = null;
 
       function lang() {
-        return /answer_en/.test(window.location.hash) ? 'en' : 'zh';
+        var m = /answer_(zh|en|ru|es|ja)/.exec(window.location.hash || '');
+        return m ? m[1] : 'zh';
       }
 
       function escapeHtml(s) {

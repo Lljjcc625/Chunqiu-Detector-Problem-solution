@@ -1,6 +1,6 @@
-# Chunqiu Detector-Problem solution / 春秋检测器问题解决方案
+# 春秋检测器问题解决方案 / Chunqiu Detector Problem Solution
 
-[English](README.md) | **中文**
+[English](README.md) | **中文** | [Русский](README.ru.md) | [Español](README.es.md) | [日本語](README.ja.md)
 
 > 您可以在下方选择语言查看此文档，或访问我们的在线交互文档平台（支持实时关键词搜索）。
 
@@ -8,11 +8,11 @@
 
 👉 **[https://mingzun09.github.io/Chunqiu-Detector-Problem-solution/](https://mingzun09.github.io/Chunqiu-Detector-Problem-solution/)**
 
-站点使用 **Docsify** 构建（纯前端单页，无构建步骤）：入口为根目录的 `index.html`，侧边栏与导航分别来自 `_sidebar.md` / `_navbar.md`，正文直接读取 `language/answer_zh.md` 与 `language/answer_en.md`（**无需改站点文件**，提交后自动更新）。
+站点使用 **Docsify** 构建（纯前端单页，无构建步骤）：入口为根目录的 `index.html`，导航与侧边栏分别来自 `_navbar.md` / `_sidebar.md`，正文直接读取 `language/` 目录下的文件（**无需改站点文件**，提交后自动更新）。
 
 - 深浅色主题跟随浏览器 / 系统设置（`prefers-color-scheme`），无需手动切换
 - 顶部搜索框只检索**词条标题**，命中后展开对应条目
-- 文档内容仍维护在 `language/answer_zh.md` 与 `language/answer_en.md`
+- 文档内容仍维护在 `language/` 目录下的各个语言文件中
 
 本地预览（Docsify 通过 XHR 读取 Markdown，必须走 HTTP，不能直接双击打开 `index.html`）：
 
@@ -29,9 +29,15 @@ python -m http.server 8000    # 或任意静态服务器，如 npx serve
 
 请选择以下语言之一来查看解决方案文件。
 
-[中文解决方案](/language/answer_zh.md) | [English Solutions](/language/answer_en.md)
+- [中文解决方案](/language/answer_zh.md)
+- [English Solutions / 英文](/language/answer_en.md)
+- [Русское решение / 俄语](/language/answer_ru.md)
+- [Solución en español / 西班牙语](/language/answer_es.md)
+- [日本語の解決策 / 日语](/language/answer_ja.md)
 
 > 文档中包含大量嵌入式链接（蓝色突出显示），点击即可跳转至对应的项目/文件地址。
+
+> 中文版为原始版本，其余语言由中文版翻译而来；若表述有歧义，以中文版为准。
 
 ---
 
@@ -52,7 +58,7 @@ python -m http.server 8000    # 或任意静态服务器，如 npx serve
 
 欢迎提交 Issues 或 Pull Requests 补充新的检测项及解决方案！
 
-You can fork and modify the repository, then pull requests. I will check and merge them.
+您可以 fork 本仓库并自行修改，然后提交 Pull Request，我会检查并合并。
 
 ---
 

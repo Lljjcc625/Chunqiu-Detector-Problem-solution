@@ -1,17 +1,27 @@
-# Chunqiu Detector-Problem solution
+# Chunqiu Detector Problem Solution
 
-**English** | [中文](README.zh-CN.md)
+**English** | [中文](README.zh-CN.md) | [Русский](README.ru.md) | [Español](README.es.md) | [日本語](README.ja.md)
 
-> Pick your language below to read the document, or visit our interactive online documentation site.
+> Pick your language below to read the document, or visit our interactive online documentation site (with live keyword search).
 
 ## 🌐 Online Docs (GitHub Pages)
 
 👉 **[https://mingzun09.github.io/Chunqiu-Detector-Problem-solution/](https://mingzun09.github.io/Chunqiu-Detector-Problem-solution/)**
 
-The site is built with **Docsify**: a simple and lightweight documentation site generator.
-The document content is maintained in this repository under `language/answer_zh.md` and `language/answer_en.md`.
+The site is built with **Docsify** (a pure front-end single page, no build step): the entry point is `index.html` in the repository root, navigation and sidebar come from `_navbar.md` / `_sidebar.md`, and the body is read directly from the files under `language/` (**no site files need editing** — content updates as soon as it is committed).
 
-> The site source directly lives in the root directory and initializes via `index.html`.
+- Light/dark theme follows the browser / OS setting (`prefers-color-scheme`), no manual toggle
+- The top search box indexes **entry titles only** and expands the matching entry
+- The document content stays maintained in the files under `language/`
+
+Local preview (Docsify loads Markdown over XHR, so it must be served over HTTP — double-clicking `index.html` will not work):
+
+```bash
+python -m http.server 8000    # or any static server, e.g. npx serve
+# open http://localhost:8000/
+```
+
+> Publishing: `.github/workflows/pages.yml` deploys the repository root to GitHub Pages on every push to `main`.
 
 ---
 
@@ -19,9 +29,15 @@ The document content is maintained in this repository under `language/answer_zh.
 
 Select one of the following languages to view the solution file.
 
-[中文解决方案](/language/answer_zh.md) | [English Solutions](/language/answer_en.md)
+- [中文解决方案 / Chinese](/language/answer_zh.md)
+- [English Solutions](/language/answer_en.md)
+- [Русское решение / Russian](/language/answer_ru.md)
+- [Solución en español / Spanish](/language/answer_es.md)
+- [日本語の解決策 / Japanese](/language/answer_ja.md)
 
 > The document contains many embedded links (highlighted in blue). Click them to jump to the relevant project or file.
+
+> English is translated from the Chinese original; if anything reads ambiguously, the Chinese version prevails.
 
 ---
 
