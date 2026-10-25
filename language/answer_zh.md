@@ -888,6 +888,11 @@ Magic Mount 对系统修改模块挂载生效
 
 会有误报现象
 
+
+#### 检测方式（4.6.2 实测补充）
+
+`/proc/<pid>/{cmdline,status,cgroup}` 三域交叉，另与 auditd 的 AVC 记录交叉。信号分布在「进程名 / cgroup / 审计」三处，只改一处通常不足以消除；建议先用 `ls -l /proc/<pid>/exe` 枚举真正被命中的进程，再决定动哪一处。
+
 </details>
 
 <details><summary><b>Zygote 存在异常</b></summary>
@@ -1030,6 +1035,19 @@ KSU 免解（越狱）模式特征，或发现 ksu 相关进程 / 设备（热�
 
 不推荐使用**免解（越狱）模式**，因此不提供解决方案。
 
+
+#### 检测方式（4.6.2 实测补充）
+
+实测为**本地判定**，与服务端无关：飞行模式 + `pm clear` 清数据后仍稳定复现。
+
+判据来自两个 native 探针：① **SELinux policy oracle**（在 zygote 域执行 `check_access()`，查询只有 KSU 策略才有的 subject/class，如 `ksu`、`ksu_file`）；② **`/proc/fs/ext4` 的 loop 设备**（与本条目下方的 `KernelSU loop device` 同源）。
+
+两条容易误判的边界：
+- 真正读 `/proc/fs/*`、selinuxfs 的是 **`:msi` / `:apd` 隔离服务**（继承 zygote 命名空间），App 主进程读不到 ⇒ 验证必须在隔离服务域做；
+- `pm hide` 掉 KSU 管理器、或在 App 的 mount namespace 里把 `/data/adb` bind 成空目录，该条目**仍然存在** ⇒ 与「管理器包是否可见」「`/data/adb` 是否存在」无因果关系。
+
+免解（late-load）栈上还有一个可定位成因：KernelSU 的 `selinux_hide` 默认关闭，late-load 流程中无人启用，用于「用 `backup_sepolicy` 回答 app-uid 策略查询」的钩子因此从未安装。已在上游立案：`KernelSU-Next` issue #1660 / PR #1659。
+
 </details>
 
 <details><summary><b>KernelSU loop device</b></summary>
@@ -1042,6 +1060,11 @@ KSU 免解（越狱）模式特征，或发现 ksu 相关进程 / 设备（热�
 
 更新你的管理器并重新修补
 更新管理器并重新修补；或关闭/更换元模块（如 Hybrid-Mount，见序章「相关模块推荐」）。
+
+
+#### 检测方式（4.6.2 实测补充）
+
+与 `Found ksu/免解设备` 同源：读取 `/proc/fs/ext4` 下的 loop 条目做特征匹配，通常与上一条成对出现。读取者主要是隔离服务，隐藏需覆盖该域后再复验（在主进程里验证会得到假阴性）。
 
 </details>
 
@@ -1260,6 +1283,13 @@ KSU 免解（越狱）模式特征，或发现 ksu 相关进程 / 设备（热�
 *以上方案补充整理自 [741afb7 的上游 PR #45](https://github.com/mingzun09/Chunqiu-Detector-Problem-solution/pull/45)；兼容性说明沿用该贡献，并非本站独立真机验证。*
 
 关系：`SELinux 状态指纹可疑`、`SELinux 状态通道不一致`、`设备获取 Root 权限 / 异常模块` 属于同一套判据族（不同版本的不同切面），**本文档已合并到本条**。
+
+
+#### 检测方式（4.6.2 实测补充）
+
+**双路径互证**：`libselinux check_access()` + 直接读写 selinuxfs，代码内带 `unsupported` / `mismatch` 诊断 ⇒ 单修一条会被另一条判为 `mismatch`，反而更显眼。
+
+另：该条目的判据**不是**「读 `/sys/fs/selinux/policy` 文件」，因此对 policy 文件做路径隐藏对该条目无效。
 
 </details>
 
@@ -1601,6 +1631,11 @@ native 方法 `runRootManagerIntentChecks` —— 用 Intent / 包可见性（`<
 - 有效组合：**应用隐藏模块黑名单模式 + 零宽读取修复方案**（[FuseFixer](https://github.com/5ec1cff/FuseFixer)）；部分机型开启作用域后可能卡开机，安全模式关掉即可；
 - 只想让春秋这一项通过：在应用隐藏模块里对检测春秋检测打开「限制 zygote 权限」，除 `INET_GID` 外全开；
 - 这类判定手段未知的条目，也可用应用隐藏模块把可疑应用对检测器隐藏。
+
+
+#### 检测方式（实验证实）
+
+通道是**包管理器查询**：执行 `pm hide <包名>` 后该项列表立即少一个包，`pm unhide` 后恢复 ⇒ 与目录扫描无关。
 
 </details>
 
