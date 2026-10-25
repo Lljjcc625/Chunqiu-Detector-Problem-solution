@@ -1213,6 +1213,11 @@ KSU 免解（越狱）模式特征，或发现 ksu 相关进程 / 设备（热�
 
 判据是 selinuxfs 查询结果、status 页读数、avc 统计与 logcat/auditd 记录之间的自相矛盾。
 
+＜details><summary><b>Abnormal Environment(k)</b></summary>
+## 更新最新CI管理器解决
+
+</details>
+
 <details><summary><b>检测SELinux Policy时发现可疑问题 / 检测到ROOT权限</b></summary>
 
 #### 检测方式
