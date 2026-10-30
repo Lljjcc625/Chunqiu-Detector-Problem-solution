@@ -1648,7 +1648,7 @@ iQoo/Vivo 用户注意：`/apex/com.android.virt/bin/su` 会被命中 → 移走
 更新hma/hma_oss至最新版
 [HMA更新频道](https://t.me/HideMyApplist/175)
 [HMA_OSS更新频道](https://t.me/buggychat/121613)
-刷入此模块解决[UIDFilter](https://t.me/Suxiaomingpd/402)
+刷入此模块解决[fgetpriority](https://t.me/buggychat/135951?single)
 如果是隐藏应用列表生效，那请关闭对春秋检测的“伪装安装来源”
 </details>
 
