@@ -891,7 +891,9 @@ Magic Mount 对系统修改模块挂载生效
 
 #### 检测方式（4.6.2 实测补充）
 
-`/proc/<pid>/{cmdline,status,cgroup}` 三域交叉，另与 auditd 的 AVC 记录交叉。信号分布在「进程名 / cgroup / 审计」三处，只改一处通常不足以消除；建议先用 `ls -l /proc/<pid>/exe` 枚举真正被命中的进程，再决定动哪一处。
+native 判据是 **cgroup 内进程组扫描 + PPID 聚类**：先枚举 cgroup 中的进程归属，再按 `PPid` 将进程聚成父子组；同一进程组内一旦出现异常归属（父进程、uid 或 cgroup 层级与预期不符），会对该组内每个异常 `tgid` **逐个生成一条** `异常进程 %1$s`。
+
+所以同一次扫描可能连续出现多个同组条目，`%1$s` 取自各 `tgid` 的进程名或 cmdline（取不到时为空串）。只改进程名或只隐藏单个 cgroup 目录，通常不会消掉整组；复验时应同时检查 `Tgid`、`PPid` 与 cgroup 归属是否自洽。
 
 </details>
 
@@ -1038,15 +1040,12 @@ KSU 免解（越狱）模式特征，或发现 ksu 相关进程 / 设备（热�
 
 #### 检测方式（4.6.2 实测补充）
 
-实测为**本地判定**，与服务端无关：飞行模式 + `pm clear` 清数据后仍稳定复现。
+4.6.2 的判据是进程内两项状态异常，满足任一即命中：
 
-判据来自两个 native 探针：① **SELinux policy oracle**（在 zygote 域执行 `check_access()`，查询只有 KSU 策略才有的 subject/class，如 `ksu`、`ksu_file`）；② **`/proc/fs/ext4` 的 loop 设备**（与本条目下方的 `KernelSU loop device` 同源）。
+- `getppid() > 5000`：正常 App 进程的父进程应是启动早期创建、pid 通常远低于 5000 的 system zygote；父 pid 过大说明父进程并非预期 zygote，常见于注入或重定父进程；
+- `/proc/self/status` 中 `Seccomp: 0`：正常 App 进程应在 seccomp 过滤模式下运行（该字段通常为 `2`）；为 `0` 表示过滤未启用。
 
-两条容易误判的边界：
-- 真正读 `/proc/fs/*`、selinuxfs 的是 **`:msi` / `:apd` 隔离服务**（继承 zygote 命名空间），App 主进程读不到 ⇒ 验证必须在隔离服务域做；
-- `pm hide` 掉 KSU 管理器、或在 App 的 mount namespace 里把 `/data/adb` bind 成空目录，该条目**仍然存在** ⇒ 与「管理器包是否可见」「`/data/adb` 是否存在」无因果关系。
-
-免解（late-load）栈上还有一个可定位成因：KernelSU 的 `selinux_hide` 默认关闭，late-load 流程中无人启用，用于「用 `backup_sepolicy` 回答 app-uid 策略查询」的钩子因此从未安装。已在上游立案：`KernelSU-Next` issue #1660 / PR #1659。
+该条为**本地判定**：飞行模式 + `pm clear` 后仍可复现。`pm hide` 掉 KSU 管理器、在 App 的 mount namespace 里把 `/data/adb` bind 成空目录、隐藏 `/proc/fs`，都不会改变该条 ⇒ 它读取的是进程自身与父进程状态，不依赖包管理器、`/data/adb` 内容或 `/proc/fs` 的 loop 设备。下方 `KernelSU loop device` 是另一条独立详情。
 
 </details>
 
@@ -1064,7 +1063,13 @@ KSU 免解（越狱）模式特征，或发现 ksu 相关进程 / 设备（热�
 
 #### 检测方式（4.6.2 实测补充）
 
-与 `Found ksu/免解设备` 同源：读取 `/proc/fs/ext4` 下的 loop 条目做特征匹配，通常与上一条成对出现。读取者主要是隔离服务，隐藏需覆盖该域后再复验（在主进程里验证会得到假阴性）。
+判据是 **jbd2 与 ext4 两处同时命中**：
+
+1. 枚举 `/proc/fs/jbd2`，匹配形如 `loop*-8` 的条目（即 loop 设备上的 ext4 日志项）；
+2. 对每个匹配项去掉 `-8` 后缀得到 `<dev>`，确认 `/proc/fs/ext4/<dev>` 同时存在；
+3. 两者同时成立才输出 `KernelSU loop device: %1$s`，`%1$s` 为对应设备名。
+
+只在 `/proc/fs/ext4` 下看到 `loopN` 不足以命中本详情；`/proc/fs/jbd2` 里只有 `sdc*` 等非 loop 条目时也不成立。主进程通常看不到 `/proc/fs`，复验应在能读取该挂载视图的隔离服务或 zygote 域进行。
 
 </details>
 
@@ -1287,9 +1292,14 @@ KSU 免解（越狱）模式特征，或发现 ksu 相关进程 / 设备（热�
 
 #### 检测方式（4.6.2 实测补充）
 
-**双路径互证**：`libselinux check_access()` + 直接读写 selinuxfs，代码内带 `unsupported` / `mismatch` 诊断 ⇒ 单修一条会被另一条判为 `mismatch`，反而更显眼。
+核心是 **AppZygote 内直接读写 raw selinuxfs**，并让多组读数互相校验。以下任一项出现异常都会归入本条：
 
-另：该条目的判据**不是**「读 `/sys/fs/selinux/policy` 文件」，因此对 policy 文件做路径隐藏对该条目无效。
+- **控制组 / 负控**：以当前 `app_zygote` 的 context 为源，设置应放行的正控、应拒绝的负控以及文件控制；任一组结果与预期相反即异常；
+- **status 页字段**：读取 `/sys/fs/selinux/status` 的 `version`、`enforcing`、`sequence`、`policyload` 等字段；字段值或组合不符合预期（如 `enforcing` 非 1、`sequence/policyload` 跳变）即异常；
+- **access seqno**：直接向 `/sys/fs/selinux/access` 写入查询并校验内核回填的 `avdSeqNo`/`seqno`；seqno 不前进、回填不一致或重复查询结果变化即异常；
+- **无效上下文一致性**：用不存在的 source/target/class/perm 做负向查询，正常应返回 `EINVAL`；若无效上下文被当成正常上下文给出 allow/deny 决策，或 raw selinuxfs 与 libselinux 的结果不一致，即异常。
+
+判据落在 `access` / `status` 的读数一致性上，而不是读取 `/sys/fs/selinux/policy` 文件内容；主进程通常读不到 selinuxfs，复验应在 `app_zygote` / zygote 域进行。
 
 </details>
 
@@ -1633,9 +1643,14 @@ native 方法 `runRootManagerIntentChecks` —— 用 Intent / 包可见性（`<
 - 这类判定手段未知的条目，也可用应用隐藏模块把可疑应用对检测器隐藏。
 
 
-#### 检测方式（实验证实）
+#### 检测方式（4.6.2 实测补充）
 
-通道是**包管理器查询**：执行 `pm hide <包名>` 后该项列表立即少一个包，`pm unhide` 后恢复 ⇒ 与目录扫描无关。
+4.6.2 同时使用两条通道匹配内置风险包名表：
+
+- `pm list packages`：解析包管理器返回的已安装包名；
+- `/sdcard/Android/data/<包名>`：枚举外部数据目录名，按 `<包名>` 与风险表比对；目录名中夹入零宽字符（如 U+200B / U+200C / U+200D / U+FEFF）时也会做归一化处理，不能靠零宽字符绕过。
+
+`pm hide <包名>` 后该包从风险列表消失，只证明**包管理器通道**生效，不能据此推断目录通道不存在；反之，删掉 `/sdcard/Android/data/<包名>` 也只压掉**目录通道**，`pm list packages` 仍可命中。
 
 </details>
 
